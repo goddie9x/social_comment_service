@@ -1,0 +1,21 @@
+{
+  "name": "comment_service",
+  "version": "1.0.0",
+  "description": "comment service for social media",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "comment"
+  ],
+  "author": "goddie9x",
+  "license": "ISC",
+  "dependencies": {
+    "comment_service": "file:",
+    "dotenv": "^16.4.5",
+    "express": "^4.21.1",
+    "kafkajs": "^2.2.4",
+    "mongoose": "^8.7.1"
+  }
+}
