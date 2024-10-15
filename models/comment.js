@@ -11,8 +11,8 @@ const AdditionSchema = new mongoose.Schema({
 });
 CommentSchema.add(AdditionSchema);
 
-MessageSchema.index({ target: 1, replyTo: 1, createdAt: -1 });
-MessageSchema.index({ replyTo: 1, createdAt: -1 });
-MessageSchema.index({ sender: 1, target: 1, createdAt: -1 });
+CommentSchema.index({ target: 1, replyTo: 1, createdAt: -1 });
+CommentSchema.index({ replyTo: 1, createdAt: -1 });
+CommentSchema.index({ sender: 1, target: 1, createdAt: -1 });
 
 module.exports = mongoose.model('Comments', CommentSchema);

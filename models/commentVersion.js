@@ -18,6 +18,6 @@ const AdditionSchema = new mongoose.Schema({
 });
 CommentVersionSchema.add(AdditionSchema);
 
-MessageSchema.index({ originalCommentId: 1, createdAt: -1 });
+CommentVersionSchema.index({ originalCommentId: 1, createdAt: -1 });
 
 module.exports = mongoose.model('CommentVersions', CommentVersionSchema);
