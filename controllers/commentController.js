@@ -57,8 +57,21 @@ class CommentController extends BasicController {
     async updateComment(req, res) {
         try {
             const comment = await commentService.updateComment(req.body);
-            
+
             return res.status(200).json(comment);
+        } catch (error) {
+            this.handleResponseError(res, error);
+        }
+    }
+    async deleteAllCommentInPost(req, res) {
+        try {
+            const payloads = {
+                id: req.params.id,
+                ...req.body,
+            }
+            await commentService.deleteAllCommentInPost(payloads);
+
+            return res.status(200).json({ message: 'Deleted all comment' });
         } catch (error) {
             this.handleResponseError(res, error);
         }
@@ -67,9 +80,10 @@ class CommentController extends BasicController {
         try {
             const payloads = {
                 id: req.params.id,
+                ...req.body,
             }
-            const results = await commentService.deleteCommentCascade(payloads);
-            return res.status(200).json({ ...results });
+            await commentService.deleteCommentById(payloads);
+            return res.status(200).json({ message: 'Deleted all comment' });
         } catch (error) {
             this.handleResponseError(res, error);
         }

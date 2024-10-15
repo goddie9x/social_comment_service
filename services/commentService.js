@@ -2,7 +2,7 @@ const Comment = require('../models/comment');
 const CommentVersion = require('../models/commentVersion');
 const bindMethodsWithThisContext = require('../utils/classes/bindMethodsWithThisContext');
 const BasicService = require('../utils/services/basicService');
-const { TargetNotExistException } = require('../utils/exceptions/commonExceptions');
+const { TargetNotExistException, BadRequestException } = require('../utils/exceptions/commonExceptions');
 const { sendCreateNotificationKafkaMessage } = require('../utils/kafka/producer');
 const { TYPE } = require('../utils/constants/notification');
 const { GEN_POST_ROUTE_WITH_COMMENT } = require('../utils/constants/clientRoute');
@@ -134,6 +134,27 @@ class CommentService extends BasicService {
             originalCommentId: id
         });
         return commentVersions;
+    }
+    async deleteAllCommentInPost(payloads) {
+        const { id, currentUser } = payloads;
+        //TODO check post exist -> check current user can delete comment if the user is the owner or admin or mod
+        if (!id) {
+            throw BadRequestException('Post not provided');
+        }
+        const commentIds = await Comment.find({
+            target: id
+        }, '_id');
+        const commentIdsToDelete = commentIds.map(x => x._id);
+        await CommentVersion.deleteMany({
+            originalCommentId: { $in: commentIdsToDelete }
+        });
+        await Comment.deleteMany({
+            _id: { $in: commentIdsToDelete }
+        });
+    }
+    async deleteCommentById(payloads) {
+        const { id, currentUser } = payloads;
+        await this.deleteCommentCascade(id);
     }
     async deleteCommentCascade(commentId) {
         const allCommentIds = await gatherRelatedComments(commentId);
