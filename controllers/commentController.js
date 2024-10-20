@@ -28,8 +28,21 @@ class CommentController extends BasicController {
                 page: req.query.page,
             }
             const comment = await commentService.getCommentById(payloads);
-            
+
             return res.status(200).json(comment);
+        } catch (error) {
+            this.handleResponseError(res, error);
+        }
+    }
+    async getAllCommentVersionById(req, res) {
+        try {
+            const payloads = {
+                id: req.params.id,
+                currentUser: req.body.currentUser,
+            }
+            const result = await commentService.getAllCommentVersionById(payloads);
+
+            return res.status(200).json(result);
         } catch (error) {
             this.handleResponseError(res, error);
         }

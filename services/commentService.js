@@ -90,6 +90,18 @@ class CommentService extends BasicService {
         });
         return commentWithReplies;
     }
+    async getAllCommentVersionById(payloads) {
+        const { id, currentUser } = payloads;
+        const comment = await Comment.findById(id);
+        if (!comment) {
+            throw new TargetNotExistException('Comment not exist');
+        }
+        const commentVersions = await this.getVersionsOfComment({ id });
+        return {
+            comment,
+            commentVersions
+        };
+    }
     //TODO: validate that user can comment in the post
     async createComment(payloads) {
         const { currentUser, createdAt, target, sender, replyTo, content, contentType } = payloads;
