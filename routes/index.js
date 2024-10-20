@@ -7,8 +7,8 @@ router.post('/create',commentController.createComment);
 router.get('/in-post/:id',commentController.getCommentForPostWithPagination);
 router.get('/replies/:id',commentController.getCommentsReplyToCommentWithPagination);
 router.patch('/update',commentController.updateComment);
-router.delete('/delete/:id',commentController.deleteCommentById);
 router.delete('/delete-in-post/:id',commentController.deleteAllCommentInPost);
+router.delete('/:id',commentController.deleteCommentById);
 router.get('/:id',commentController.getCommentById);
 
 module.exports = router;

@@ -25,8 +25,10 @@ class CommentController extends BasicController {
             const payloads = {
                 id: req.params.id,
                 currentUser: req.body.currentUser,
+                page: req.query.page,
             }
             const comment = await commentService.getCommentById(payloads);
+            
             return res.status(200).json(comment);
         } catch (error) {
             this.handleResponseError(res, error);

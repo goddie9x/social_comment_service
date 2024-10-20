@@ -16,7 +16,7 @@ class CommentService extends BasicService {
             throw new TargetNotExistException('Comments not exist');
         }
         const commentWithReplies = await Promise.all(comments.map(async (comment) => {
-            const { results: replies, totalDocuments: totalReplies, totalPages: totalReplyPages } = await this.getPaginatedResults({
+            const { results: replies, totalDocuments: totalReplies, totalPages } = await this.getPaginatedResults({
                 model: Comment,
                 query: {
                     replyTo: comment._id
@@ -26,7 +26,7 @@ class CommentService extends BasicService {
                 ...comment.toObject(),
                 replies,
                 totalReplies,
-                currentReplyPage
+                totalPages
             }
         }));
         return commentWithReplies;
@@ -42,7 +42,8 @@ class CommentService extends BasicService {
         const { results: comments, totalDocuments: totalComment, totalPages } = await this.getPaginatedResults({
             model: Comment,
             query: {
-                target: id
+                target: id,
+                replyTo: { $exists: false },
             },
             page,
             limit,
@@ -77,12 +78,17 @@ class CommentService extends BasicService {
     }
     //TODO: validate that user can read that comment base on post, user,...
     async getCommentById(payloads) {
-        const { id, currentUser } = payloads;
+        const { id, currentUser, page } = payloads;
         const comment = await Comment.findById(id);
         if (!comment) {
             throw new TargetNotExistException('Comment not exist');
         }
-        return comment;
+        const commentWithReplies = await this.getCommentsReplyToCommentWithPagination({
+            id: comment._id,
+            currentUser,
+            page
+        });
+        return commentWithReplies;
     }
     //TODO: validate that user can comment in the post
     async createComment(payloads) {
@@ -121,8 +127,12 @@ class CommentService extends BasicService {
             throw new TargetNotExistException('The comment not exist');
         }
         const commentVersion = new CommentVersion({ originalCommentId: comment._id, ...comment.toObject() });
-        comment.content = content;
-        comment.contentType = contentType;
+        if (content) {
+            comment.content = content;
+        }
+        if (contentType) {
+            comment.contentType = contentType;
+        }
         await comment.save();
         await commentVersion.save();
         return comment;
@@ -157,7 +167,7 @@ class CommentService extends BasicService {
         await this.deleteCommentCascade(id);
     }
     async deleteCommentCascade(commentId) {
-        const allCommentIds = await gatherRelatedComments(commentId);
+        const allCommentIds = await this.gatherRelatedComments(commentId);
 
         await Comment.deleteMany({ _id: { $in: allCommentIds } });
         await CommentVersion.deleteMany({ originalCommentId: { $in: allCommentIds } });
