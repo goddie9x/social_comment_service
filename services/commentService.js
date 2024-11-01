@@ -113,7 +113,7 @@ class CommentService extends BasicService {
             content,
             contentType
         });
-        const response = await comment.save();
+        await comment.save();
 
         if (comment.replyTo) {
             const targetComment = await Comment.findById(comment.replyTo);
